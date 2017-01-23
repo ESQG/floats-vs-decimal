@@ -1,0 +1,286 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+%\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{verbatim} % To display code!
+\usepackage{cprotect}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[$1/5 \ne 0.2$]{Floats vs the Decimal package: What to do when $1/5 \ne 0.2$} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Elizabeth Goodman} % Your name
+\institute[Hackbright] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+Hackbright Academy \\ % Your institution for the title page
+\medskip
+\textit{elizabethsqg@gmail.com} % Your email address
+}
+\date{January 23, 2017} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+%\titlepage % Print the title page as the first slide
+\maketitle
+\end{frame}
+
+\begin{frame}
+\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+%------------------------------------------------
+\section{The Problem with Floats} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+\begin{frame}{Checking things are equal}
+
+\begin{block}{Computation with integers?  Great!}
+Python's even pretty good at really large integers.
+\end{block}
+
+\begin{block}{Computation with floats?  Python will deceive you!}
+(But really it's a hardware problem.)\\
+~\\
+\pause
+\texttt{>>> 1.1+2.2}\\
+\texttt{3.3000000000000003}
+\end{block}
+\begin{block}{Why does that matter?}
+1.1+2.2 == 3.3 returns False.  So do a lot of other things.
+\end{block}
+\end{frame}
+
+\begin{frame}\frametitle{We can't see the rounding errors, but they're happening}
+I wrote a function to read amounts on a receipt from a file, convert to floats, add them up, then check if they equal the subtotal written at the bottom.
+
+\begin{block}{Good}
+\texttt{>>>print subtotal}\\
+\texttt{123.12}\\
+\texttt{>>>print written\_subtotal}\\
+\texttt{123.12}\\
+\end{block}
+\pause
+\begin{block}{Bad}
+\texttt{>>>subtotal == written\_subtotal}\\
+\texttt{False}\\
+\texttt{>>>subtotal}\\
+\texttt{123.11999999999999}
+\end{block}
+
+\end{frame}
+
+\begin{frame}\frametitle{Binary expansion of fractions}
+
+\begin{block}{1/3 is still a problem}
+~\\
+\begin{tabular}{l | l | l | l}
+Number & Decimal & Binary & Float (52 places)\\
+\hline
+~&~&~&~\\
+
+%$1/2$ & $0.5$ & $0.1$ & $1.0000\ldots00 \times 2^{-1}$\\
+$1/3$ &$0.333...$& $0.0101010101...$ & $1.0101\ldots 11 \times 2^{-2}$
+\end{tabular}
+\end{block}
+\pause
+
+\begin{block}{But 1/10 is also a problem}
+~\\
+\begin{tabular}{l | l | l | l}
+Number & Decimal & Binary & Float (52 places)\\
+\hline
+~&~&~&~\\
+
+$1/10$ & $0.1$ & $0.000110011\ldots$ & $1.100...11010 \times 2^{-3}$  \\ 
+%$1/5$ & $0.2$ & $0.001100110\ldots$ & $1.100...11010 \times 2^{-2}$
+\end{tabular}
+\end{block}
+\pause
+\begin{block}{Actual value of 0.1 stored as a float (on my computer):}
+{\fontsize{0.9em}{0.9em}
+\texttt{.1000000000000000055511151231257827021181583404541015625}
+}
+\end{block}
+%\caption{Decimal vs binary representations}
+\end{frame}
+
+
+%------------------------------------------------
+\section{The Decimal Module}
+%------------------------------------------------
+
+\begin{frame}\frametitle{from decimal import Decimal}
+\begin{block}{From the Python docs:}
+``...computers must provide an arithmetic that works in the same way as the arithmetic that people learn at school.''
+\end{block}
+\pause
+\begin{block}{A Decimal object looks like}
+\texttt{Decimal(`2.20')} prints as \texttt{2.20} (no formatting needed!)
+\end{block}
+\pause
+\begin{block}{Things that work well}
+\begin{itemize}
+\item Trailing 0s and displaying them
+\item String formatting
+\item Sort works numerically (10.00 \textgreater 2.00 unlike strings)
+\item Accurate comparisons
+\item Customize rounding and precision
+\item \texttt{Decimal (`2.0') == Decimal (`2.00') == 2}
+\item My receipt function!
+\end{itemize}
+\end{block}
+\end{frame}
+\begin{frame}\frametitle{Decimal Do's and Don'ts}  %Add [fragile] to use verbatim
+{\fontsize{0.7em}{0.7em}
+
+%\begin{columns}
+%\begin{column}{0.3\textwidth}
+%\begin{tabular}{l}
+%
+%Don't: \\
+%\pause
+%\texttt{Decimal(1.10)}\\
+%\pause
+%\texttt{Decimal(`1.10')+2.0}\\
+%\pause
+%\texttt{round(Decimal(`.126'), 2)}\\
+%\end{tabular}
+%\end{column}
+%\pause
+%
+%\begin{column}{0.5\textwidth}
+%
+%\begin{tabular}{l}
+%Do:\\
+%\texttt{Decimal(`1.10')}\\
+%\pause
+%\texttt{Decimal(`1.10')+2}\\
+%\pause
+%\texttt{Decimal(`.126').quantize(Decimal(`.01'))}
+%
+%\end{tabular}
+%\end{column}
+%\end{columns}
+\begin{tabular}{l | r}
+
+Do: & Don't:\\
+\hline
+\\
+Convert from string & Convert from float\\
+\texttt{Decimal(`1.10')}&\texttt{Decimal(1.10)}\\
+\hline
+\pause
+\\
+
+Mix with ints & Mix with floats\\
+\texttt{Decimal(`1.10')+2} &\texttt{Decimal(`1.10')+2.0}\\
+\hline
+\pause
+\\
+
+Round using the .quantize method & Round function\\
+\texttt{Decimal(`.126').quantize(Decimal(`.01'))}& \texttt{round(Decimal(`.126'), 2)}\\
+\hline
+
+\end{tabular}
+}
+\end{frame}
+
+\begin{frame}\frametitle{Questions?}
+Things I can answer:
+\begin{itemize}
+\item Why 52 places??
+\item What about speed?
+\item Binary expansions
+\item Offline: other stuff about floating point computations
+\item Maybe some other questions
+\end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\end{document} 
